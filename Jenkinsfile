@@ -48,9 +48,15 @@ pipeline {
                 branch "development"
             }
             stages{
+                stage("Clean old mvn output"){
+                    steps{
+                        sh "mvn clean"
+                        input_message: "Finished cleaning old mvn output (Click 'Proceed' to continue)"
+                    }
+                }
                 stage("Execute applications's unit test"){
                     steps{
-                        sh "mvm test"
+                        sh "mvn test"
                         input_message: "Finished application's unit test (Click 'Proceed' to continue)"
                     }
                 }
