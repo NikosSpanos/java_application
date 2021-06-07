@@ -87,7 +87,7 @@ pipeline {
                     }
                     */
                     steps{
-                        sh "sudo docker login -u ${env.docker_user} -p ${env.docker_pass}"
+                        sh "sudo docker login -u $env.docker_user -p $env.docker_pass"
                         sh "sudo docker build -t nikspanos/cicd-pipeline:${env.image_version} ."
                         sh "sudo docker push nikspanos/cicd-pipeline:${env.image_version}"
                     }
