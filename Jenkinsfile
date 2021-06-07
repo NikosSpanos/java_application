@@ -74,8 +74,22 @@ pipeline {
                     }
                 }
                 stage("Build application docker image"){
-                    steps {
-                        sh "sudo docker login -u nikspanos -p DevOpsEngineer001@"
+                    input{
+                        message "Username:"
+                        ok "Accept"
+                        parameters{
+                            string(name: 'Username', defaultValue: '', description: "Enter docker hub username")
+                        }
+                    }
+                    input{
+                        message "Password:"
+                        ok "Accept"
+                        parameters{
+                            string(name: 'Password', defaultValue: '', description: "Enter docker hub password")
+                        }
+                    }
+                    steps{
+                        sh "sudo docker login -u ${Username} -p ${Password}"
                         sh "sudo docker build -t nikspanos/cicd-pipeline:${env.image_version} ."
                         sh "sudo docker push nikspanos/cicd-pipeline:${env.image_version}"
                     }
