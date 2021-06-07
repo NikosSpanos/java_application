@@ -1,82 +1,90 @@
 pipeline {
-    agent any
+    agent {
+        node {
+            label 'master'
+        }
+    }
     environment{
-        email_address = "nspanos@athtech.gr"
+        email_address_admin = "nspanos@athtech.gr"
+        email_address_developer = "sofiazagori@gmail.com"
     }
     tools{
         maven "maven-3.6.1"
     }
     stages{
-        stage("Main branch"){
+        stage("Changes pushed to features branch. Review the commit message and either accept or discard the changes."){
             when{
-                branch "main"
+                branch "features"
             }
-            stages{
-                stage("Input message"){
-                    input{
-                        message "Do you want to deploy?"
-                        ok "Yes!"
-                        parameters{
-                            string(name: 'OUTPUT', defaultValue:'', description: "Enter a text")
-                        }
-                    }
-                    steps{
-                        echo "The output is: ${OUTPUT}"
-                    }
-                }
-                stage("Deployment"){
-                    steps{
-                        echo "Application image is deployed to production"
-                    }
-                }
+            steps {
+                input message: 'Do you accept the application changes? (Click "Proceed" to continue)'
             }
             post{
                 success{
-                    mail to: "${env.email_address}",
+                    mail to: "${env.email_address_admin}, ${env.email_address_developer}",
                     subject: "SUCCESSFUL BUILD: ${env.BUILD_TAG}",
-                    body: "Your pipeline job on production branch was executed successfully. Link to job: ${env.BUILD_URL}"
+                    body: "Your pipeline job on features branch was executed successfully. Link to job: ${env.BUILD_URL}\nDon't reply to this message."
                 }
                 failure{
-                    mail to: "${env.email_address}",
+                    mail to: "${env.email_address_admin}",
                     subject: "SUCCESSFUL BUILD: ${env.BUILD_TAG}",
-                    body: "Your pipeline job on production branch was executed successfully. Link to job: ${env.BUILD_URL}"
+                    body: "Your pipeline job on features branch was executed successfully. Link to job: ${env.BUILD_URL}\nDon't reply to this message."
                 }
             }
         }
-        stage("Development branch"){
+        stage("Deliver for development"){
             when{
-                branch "dev"
+                branch "development"
             }
             stages{
                 stage("Compile source code to binary"){
                     steps{
                         sh "mvn clean compile"
-                        input message: "Finished application's compilation (Click 'Proceed' to continue)"
                     }
                 }
                 stage("Execute applications's unit test"){
                     steps{
                         sh "mvn test"
-                        input message: "Finished application's unit test (Click 'Proceed' to continue)"
-                    }
-                }
-                stage("Packaging the .jar file"){
-                    steps{
-                        sh "mvn package" //or mvn clean package? since we run 'mvn clean' on top we don't need 'mvn clean package', comment 2: pass the database_link and database_port as arguments in maven package
-                        input message: "Finished application's packaging (Click 'Proceed' to continue)"
                     }
                 }
             }
             post{
                 success{
-                    mail to: "${env.email_address}",
+                    mail to: "${env.email_address_admin}, ${env.email_address_developer}",
                     subject: "SUCCESSFUL BUILD: ${env.BUILD_TAG}",
-                    body: "Your pipeline job on development branch was executed successfully. Link to job: ${env.BUILD_URL}"
+                    body: "Your pipeline job on development branch was executed successfully. Link to job: ${env.BUILD_URL}\nDon't reply to this message."
+                }
+                failure{
+                    mail to: "${env.email_address_admin}",
+                    subject: "SUCCESSFUL BUILD: ${env.BUILD_TAG}",
+                    body: "Your pipeline job on development branch was executed successfully. Link to job: ${env.BUILD_URL}\nDon't reply to this message."
+                }
+            }
+        }
+        stage("Deploy for production"){
+            when{
+                branch "production"
+            }
+            stages{
+                stage("Packaging the .jar file"){
+                    steps{
+                        sh "mvn package" //or mvn clean package? since we run 'mvn clean' on top we don't need 'mvn clean package', comment 2: pass the database_link and database_port as arguments in maven package
+                        sh '''#!/bin/bash
+                            cp /var/lib/jenkins/workspace/cicd-pipeline_production/target/toDoAppWithLogin.jar $HOME/
+                            '''
+                    }
+                }
+            }
+            post{
+                success{
+                    mail to: "${env.email_address}, ${env.email_address_developer}",
+                    subject: "SUCCESSFUL BUILD: ${env.BUILD_TAG}",
+                    body: "Your pipeline job on production branch was executed successfully. Link to job: ${env.BUILD_URL}\nDon't reply to this message."
                 }
                 failure{
                     mail to: "${env.email_address}",
                     subject: "SUCCESSFUL BUILD: ${env.BUILD_TAG}",
-                    body: "Your pipeline job on development branch was executed successfully. Link to job: ${env.BUILD_URL}"
+                    body: "Your pipeline job on production branch was executed successfully. Link to job: ${env.BUILD_URL}\nDon't reply to this message."
                 }
             }
         }
