@@ -7,7 +7,6 @@ pipeline {
     environment{
         email_address_admin = "nspanos@athtech.gr"
         email_address_developer = "sofiazagori@gmail.com"
-        home_directory_cicd = "/home/codehubTeam5"
     }
     tools{
         maven "maven-3.6.1"
@@ -71,16 +70,6 @@ pipeline {
                     steps{
                         sh "mvn package" //or mvn clean package? since we run 'mvn clean' on top we don't need 'mvn clean package', comment 2: pass the database_link and database_port as arguments in maven package
                         echo "Application .jar file is created."
-                    }
-                }
-                stage("Copy the created .jar file to home directory for docker deployment"){
-                    steps{
-                        fileOperations([fileCopyOperation(
-                            flattenFiles: false,
-                            includes: '*.jar',
-                            targetLocation: "${env.home_directory_cicd}"
-                        )])
-                        //sh "#!/bin/bash\necho $HOME\nsudo cp /var/lib/jenkins/workspace/cicd-pipeline_production/target/toDoAppWithLogin.jar ${env.home_directory_cicd}"
                     }
                 }
             }
