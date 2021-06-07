@@ -74,7 +74,7 @@ pipeline {
                 stage("Copy the created .jar file to home directory for docker deployment"){
                     steps{
                         sh '''#!/bin/bash
-                            cp /var/lib/jenkins/workspace/cicd-pipeline_production/target/toDoAppWithLogin.jar $HOME/
+                            cp /var/lib/jenkins/workspace/cicd-pipeline_production/target/toDoAppWithLogin.jar .
                             '''
                     }
                 }
