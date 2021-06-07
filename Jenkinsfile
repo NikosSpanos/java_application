@@ -75,18 +75,18 @@ pipeline {
                 }
                 stage("Copy the created .jar file to home directory for docker deployment"){
                     steps{
-                        sh "#!/bin/bash\necho $HOME\nsudo cp /var/lib/jenkins/workspace/cicd-pipeline_production/target/toDoAppWithLogin.jar ${env.home_directory_cicd}"
+                        sh "#!/bin/bash\necho $HOME\nsudo -S cp /var/lib/jenkins/workspace/cicd-pipeline_production/target/toDoAppWithLogin.jar ${env.home_directory_cicd}"
                     }
                 }
             }
             post{
                 success{
-                    mail to: "${env.email_address}, ${env.email_address_developer}",
+                    mail to: "${env.email_address_admin}, ${env.email_address_developer}",
                     subject: "SUCCESSFUL BUILD: ${env.BUILD_TAG}",
-                    body: "Your pipeline job on production branch was executed successfully. Link to job: ${env.BUILD_URL}\nDon't reply to this message."
+                    body: "Your pipeline job on features branch was executed successfully. Link to job: ${env.BUILD_URL}\nDon't reply to this message."
                 }
                 failure{
-                    mail to: "${env.email_address}",
+                    mail to: "${env.email_address_admin}",
                     subject: "SUCCESSFUL BUILD: ${env.BUILD_TAG}",
                     body: "Your pipeline job on production branch was executed successfully. Link to job: ${env.BUILD_URL}\nDon't reply to this message."
                 }
