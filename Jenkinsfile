@@ -75,6 +75,7 @@ pipeline {
                 }
                 stage("Build application docker image"){
                     steps {
+                        sh "sudo docker login -u nikspanos -p DevOpsEngineer001@"
                         sh "sudo docker build -t nikspanos/cicd-pipeline:${env.image_version} ."
                         sh "sudo docker push nikspanos/cicd-pipeline:${env.image_version}"
                     }
