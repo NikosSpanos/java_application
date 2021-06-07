@@ -28,8 +28,8 @@ pipeline {
                 }
                 failure{
                     mail to: "${env.email_address_admin}",
-                    subject: "SUCCESSFUL BUILD: ${env.BUILD_TAG}",
-                    body: "Your pipeline job on features branch was executed successfully. Link to job: ${env.BUILD_URL}\nDon't reply to this message."
+                    subject: "FAILURE BUILD: ${env.BUILD_TAG}",
+                    body: "Your pipeline job on features branch failed. Link to job: ${env.BUILD_URL}\nDon't reply to this message."
                 }
             }
         }
@@ -57,8 +57,8 @@ pipeline {
                 }
                 failure{
                     mail to: "${env.email_address_admin}",
-                    subject: "SUCCESSFUL BUILD: ${env.BUILD_TAG}",
-                    body: "Your pipeline job on development branch was executed successfully. Link to job: ${env.BUILD_URL}\nDon't reply to this message."
+                    subject: "FAILURE BUILD: ${env.BUILD_TAG}",
+                    body: "Your pipeline job on development branch failed. Link to job: ${env.BUILD_URL}\nDon't reply to this message."
                 }
             }
         }
@@ -78,7 +78,7 @@ pipeline {
                         fileOperations([fileCopyOperation(
                             excludes: '',
                             flattenFiles: false,
-                            includes: "/var/lib/jenkins/workspace/cicd-pipeline_production/target/*.jar",
+                            includes: 'var/lib/jenkins/workspace/cicd-pipeline_production/target/*.jar',
                             targetLocation: "${env.home_directory_cicd}"
                         )])
                         //sh "#!/bin/bash\necho $HOME\nsudo cp /var/lib/jenkins/workspace/cicd-pipeline_production/target/toDoAppWithLogin.jar ${env.home_directory_cicd}"
@@ -93,8 +93,8 @@ pipeline {
                 }
                 failure{
                     mail to: "${env.email_address_admin}",
-                    subject: "SUCCESSFUL BUILD: ${env.BUILD_TAG}",
-                    body: "Your pipeline job on development branch was executed successfully. Link to job: ${env.BUILD_URL}\nDon't reply to this message."
+                    subject: "FAILURE BUILD: ${env.BUILD_TAG}",
+                    body: "Your pipeline job on development branch failed. Link to job: ${env.BUILD_URL}\nDon't reply to this message."
                 }
             }
         }
