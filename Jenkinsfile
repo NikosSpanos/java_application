@@ -69,8 +69,12 @@ pipeline {
                 stage("Packaging the .jar file"){
                     steps{
                         sh "mvn package" //or mvn clean package? since we run 'mvn clean' on top we don't need 'mvn clean package', comment 2: pass the database_link and database_port as arguments in maven package
-                        sh '''#!/bin/bash
-                            cp /var/lib/jenkins/workspace/cicd-pipeline_production/target/toDoAppWithLogin.jar $HOME/toDoAppWithLogin.jar
+                    }
+                }
+                stage("Copy the created .jar file to home directory for docker deployment"){
+                    steps{
+                        sh '''#!/bin/sh
+                            \cp /var/lib/jenkins/workspace/cicd-pipeline_production/target/toDoAppWithLogin.jar $HOME/
                             '''
                     }
                 }
