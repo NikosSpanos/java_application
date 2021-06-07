@@ -62,11 +62,11 @@ pipeline {
                 }
             }
         }
+        boolean packagePassed = true
         stage("Deploy for production"){
             when{
                 branch "production"
             }
-            boolean packagePassed = true
             stages{
                 stage("Packaging the .jar file"){
                         try{
