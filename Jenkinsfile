@@ -66,8 +66,8 @@ pipeline {
             when{
                 branch "production"
             }
+            boolean packagePassed = true
             stages{
-                boolean packagePassed = true
                 stage("Packaging the .jar file"){
                         try{
                             steps{
@@ -79,9 +79,11 @@ pipeline {
                     }
                 }
                 stage("Build application docker image"){
-                    if(packagePassed){
-                        def newApp = docker.build("nikspanos/cicd-pipeline:${env.image_version}", ".")
-                            newApp.push()
+                    node {
+                            if(packagePassed){
+                                def newApp = docker.build("nikspanos/cicd-pipeline:${env.image_version}", ".")
+                                newApp.push()
+                        }
                     }
                 }
             }
