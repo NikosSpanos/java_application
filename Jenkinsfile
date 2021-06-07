@@ -78,7 +78,7 @@ pipeline {
                         message "Username:"
                         ok "Accept"
                         parameters{
-                            string(name: 'Username', defaultValue: '', description: "Enter docker hub username"),
+                            string(name: 'Username', defaultValue: '', description: "Enter docker hub username")
                             string(name: 'Password', defaultValue: '', description: "Enter docker hub password")
                         }
                     }
