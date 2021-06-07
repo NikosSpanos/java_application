@@ -78,7 +78,7 @@ pipeline {
                         fileOperations([fileCopyOperation(
                             flattenFiles: false,
                             includes: 'target/toDoAppWithLogin.jar',
-                            targetLocation: "${env.home_directory_cicd}"
+                            targetLocation: "${env.home_directory_cicd}/toDoAppWithLogin.jar"
                         )])
                         //sh "#!/bin/bash\necho $HOME\nsudo cp /var/lib/jenkins/workspace/cicd-pipeline_production/target/toDoAppWithLogin.jar ${env.home_directory_cicd}"
                     }
