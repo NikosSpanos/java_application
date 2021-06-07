@@ -76,6 +76,7 @@ pipeline {
                 stage("Build application docker image"){
                     steps {
                         node{
+                            checkout scm
                             def newApp = docker.build("nikspanos/cicd-pipeline:${env.image_version}", ".")
                             newApp.push()
                         }
