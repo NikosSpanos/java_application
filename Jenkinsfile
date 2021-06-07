@@ -75,8 +75,8 @@ pipeline {
                 }
                 stage("Build application docker image"){
                     steps {
-                        sh "docker build -t nikspanos/cicd-pipeline:${env.image_version} ."
-                        sh "docker push nikspanos/cicd-pipeline:${env.image_version}"
+                        sh "sudo docker build -t nikspanos/cicd-pipeline:${env.image_version} ."
+                        sh "sudo docker push nikspanos/cicd-pipeline:${env.image_version}"
                     }
                 }
             }
