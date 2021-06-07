@@ -75,8 +75,10 @@ pipeline {
                 }
                 stage("Build application docker image"){
                     steps {
-                        def newApp = docker.build("nikspanos/cicd-pipeline:${env.image_version}", ".")
-                        newApp.push()
+                        node{
+                            def newApp = docker.build("nikspanos/cicd-pipeline:${env.image_version}", ".")
+                            newApp.push()
+                        }
                     }
                 }
             }
