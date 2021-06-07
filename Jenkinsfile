@@ -76,9 +76,8 @@ pipeline {
                 stage("Copy the created .jar file to home directory for docker deployment"){
                     steps{
                         fileOperations([fileCopyOperation(
-                            excludes: '',
                             flattenFiles: false,
-                            includes: 'var/lib/jenkins/workspace/cicd-pipeline_production/target/*.jar',
+                            includes: 'target/toDoAppWithLogin.jar',
                             targetLocation: "${env.home_directory_cicd}"
                         )])
                         //sh "#!/bin/bash\necho $HOME\nsudo cp /var/lib/jenkins/workspace/cicd-pipeline_production/target/toDoAppWithLogin.jar ${env.home_directory_cicd}"
