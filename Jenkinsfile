@@ -7,6 +7,7 @@ pipeline {
     environment{
         email_address_admin = "nspanos@athtech.gr"
         email_address_developer = "sofiazagori@gmail.com"
+        image_version = "version4"
     }
     tools{
         maven "maven-3.6.1"
@@ -66,10 +67,21 @@ pipeline {
                 branch "production"
             }
             stages{
+                boolean packagePassed = true
                 stage("Packaging the .jar file"){
-                    steps{
-                        sh "mvn package" //or mvn clean package? since we run 'mvn clean' on top we don't need 'mvn clean package', comment 2: pass the database_link and database_port as arguments in maven package
-                        echo "Application .jar file is created."
+                        try{
+                            steps{
+                            sh "mvn package" //or mvn clean package? since we run 'mvn clean' on top we don't need 'mvn clean package', comment 2: pass the database_link and database_port as arguments in maven package
+                            echo "Application .jar file is created."
+                            } catch(Exception e){
+                            packagePassed = false
+                        }
+                    }
+                }
+                stage("Build application docker image"){
+                    if(packagePassed){
+                        def newApp = docker.build("nikspanos/cicd-pipeline:${env.image_version}", ".")
+                            newApp.push()
                     }
                 }
             }
