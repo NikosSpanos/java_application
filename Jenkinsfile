@@ -7,7 +7,8 @@ pipeline {
     environment{
         email_address_admin = "nspanos@athtech.gr"
         email_address_developer = "sofiazagori@gmail.com"
-        image_version = "version5"
+        image_version_prod = "version5"
+        image_version_dev = "version1"
     }
     tools{
         maven "maven-3.6.1"
@@ -18,7 +19,7 @@ pipeline {
                 branch "features"
             }
             steps {
-                input message: 'Do you accept the application changes? (Click "Proceed" to continue)'
+                input message: 'Application developer made changes. Do you accept the application changes? (Click "Proceed" to continue)'
             }
             post{
                 success{
@@ -48,6 +49,24 @@ pipeline {
                         sh "mvn test"
                     }
                 }
+                stage("Packaging the .jar file"){
+                    steps{
+                        input message: 'Do you want to create the .jar application for the development environment? (Click "Proceed" to continue)'
+                        sh "mvn package"
+                        echo "Application .jar file is created for the development environment."
+                    }
+                }
+                stage("Build application docker image in development environment"){
+                    environment{
+                        docker_user = credentials('Username')
+                        docker_pass = credentials('Password')
+                    }
+                    steps{
+                        sh "sudo docker login -u $env.docker_user -p $env.docker_pass"
+                        sh "sudo docker build -t nikspanos/cicd-pipeline_dev:${env.image_version_dev} ."
+                        sh "sudo docker push nikspanos/cicd-pipeline_dev:${env.image_version_dev}"
+                    }
+                }
             }
             post{
                 success{
@@ -67,10 +86,21 @@ pipeline {
                 branch "production"
             }
             stages{
+                stage("Compile source code to binary"){
+                    steps{
+                        sh "mvn clean compile"
+                    }
+                }
+                stage("Execute applications's unit test"){
+                    steps{
+                        sh "mvn test"
+                    }
+                }
                 stage("Packaging the .jar file"){
                     steps{
+                        input message: 'Do you want to create the .jar application for the production environment?\nBE CAREFULL, ONLY CHANGES APPROVED BY THE SYSTEM ADMIN SHOULD BE PACKAGED\n(Click "Proceed" to continue)'
                         sh "mvn package" //or mvn clean package? since we run 'mvn clean' on top we don't need 'mvn clean package', comment 2: pass the database_link and database_port as arguments in maven package
-                        echo "Application .jar file is created."
+                        echo "Application .jar file is created for the production environment."
                     }
                 }
                 stage("Build application docker image"){
@@ -80,8 +110,8 @@ pipeline {
                     }
                     steps{
                         sh "sudo docker login -u $env.docker_user -p $env.docker_pass"
-                        sh "sudo docker build -t nikspanos/cicd-pipeline:${env.image_version} ."
-                        sh "sudo docker push nikspanos/cicd-pipeline:${env.image_version}"
+                        sh "sudo docker build -t nikspanos/cicd-pipeline_prod:${env.image_version_prod} ."
+                        sh "sudo docker push nikspanos/cicd-pipeline_prod:${env.image_version_prod}"
                     }
                 }
             }
