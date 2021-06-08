@@ -37,6 +37,8 @@
         name: "{{ default_container_name }}"
         image: "{{ default_image_name }}:{{ image_version }}"
         state: started
+        ports:
+          - 8080:8080
     
     - name: Get info
       docker_container_info:
