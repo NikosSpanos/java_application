@@ -1,15 +1,14 @@
 ---
 - hosts: docker_hosts
+  become: true
+  vars:
+    default_image_name: nikspanos/cicd-pipeline_dev
+    image_version: version5
   gather_facts: no
   tasks:
-    - name: copy tarball to host
-      copy:
-        src: "./application_dev_{{ image_version }}.tar"
-        dest: "/root/application_dev_{{ image_version }}.tar"
-    - name: load container from tarball
+    - name: Pull development environment docker image
       docker_image:
-        name: nikspanos/cicd-pipeline_dev
+        name: "{{ default_image_name }}"
         tag: "{{ image_version }}"
-        load_path: "/root/application_dev_{{ image_version }}.tar"
         state: present
-        source: load
+        source: pull

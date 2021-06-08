@@ -6,11 +6,11 @@
       docker_image:
         name: nikspanos/cicd-pipeline_dev
         tag: "{{ image_version }}"
-        archive_path: "/root/application_dev_{{ image_version }}.tar"
+        archive_path: "/{{ user }}/application_dev_{{ image_version }}.tar"
         source: pull
         state: present
     - name: fetch archived image
       fetch:
-        src: "/root/application_dev_{{ image_version }}.tar"
+        src: "/{{ user }}/application_dev_{{ image_version }}.tar"
         dest: "./application_dev_{{ image_version }}.tar"
         flat: true
