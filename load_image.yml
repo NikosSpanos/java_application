@@ -18,12 +18,7 @@
     
     - name: Install setuptools
       pip:
-        name: python-setuptools
-        state: present
-
-    - name: Install pkg_resources
-      pip:
-        name: pkg_resources
+        name: setuptools
         state: present
 
     - name: Install Docker SDK
