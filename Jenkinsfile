@@ -7,9 +7,7 @@ pipeline {
     environment{
         email_address_admin = "nspanos@athtech.gr"
         email_address_developer = "sofiazagori@gmail.com"
-        docker_user = credentials('Username')
-        docker_pass = credentials('Password')
-        image_version = "version4"
+        image_version = "version5"
     }
     tools{
         maven "maven-3.6.1"
@@ -76,16 +74,10 @@ pipeline {
                     }
                 }
                 stage("Build application docker image"){
-                    /*
-                    input{
-                        message "Username:"
-                        ok "Accept"
-                        parameters{
-                            string(name: 'Username', defaultValue: '', description: "Enter docker hub username")
-                            string(name: 'Password', defaultValue: '', description: "Enter docker hub password")
-                        }
+                    environment{
+                        docker_user = credentials('Username')
+                        docker_pass = credentials('Password')
                     }
-                    */
                     steps{
                         sh "sudo docker login -u $env.docker_user -p $env.docker_pass"
                         sh "sudo docker build -t nikspanos/cicd-pipeline:${env.image_version} ."
