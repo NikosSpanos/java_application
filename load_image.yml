@@ -41,9 +41,9 @@
     - name: Get info
       docker_container_info:
         name: "{{ default_container_name }}"
-        register: result
+      register: result
     
     - name: Print information about container
-      ansible.builtin.debug:
+      debug:
         var: result.container
       when: result.exists
