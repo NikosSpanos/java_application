@@ -9,6 +9,18 @@
     image_version: version1
   
   tasks:
+
+    - name: Install pip
+      package:
+        name: python3-pip
+        state: present
+        update_cache: yes
+    
+    - name: Install Docker SDK
+      pip:
+        name: docker
+        state: present
+    
     - name: Start Docker service
       service:
         name: docker
