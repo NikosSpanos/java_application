@@ -1,14 +1,32 @@
 ---
-- hosts: docker_hosts
-  become: true
+- name: deploy image on development vm 
+  hosts: 40.68.35.115
+  become: yes
+  
   vars:
+    default_container_name: mysql_apllication
     default_image_name: nikspanos/cicd-pipeline_dev
-    image_version: version5
-  gather_facts: no
+    image_version: version1
+  
   tasks:
+    - name: Start Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
     - name: Pull development environment docker image
-      docker_image:
-        name: "{{ default_image_name }}"
-        tag: "{{ image_version }}"
-        state: present
-        source: pull
+      docker_container:
+        name: "{{ default_container_name }}"
+        image: "{{ default_image_name }}:{{ image_version }}"
+        state: started
+    
+    - name: Get info
+      docker_container_info:
+        name: "{{ default_container_name }}"
+        register: result
+    
+    - name: Print information about container
+      ansible.builtin.debug:
+        var: result.container
+      when: result.exists
