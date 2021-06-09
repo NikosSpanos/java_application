@@ -1,6 +1,6 @@
 ---
 - name: deploy image on development vm 
-  hosts: 40.68.35.115
+  hosts: "{{ host_ip }}"
   become: yes
   
   vars:
@@ -36,6 +36,7 @@
       docker_container:
         name: "{{ default_container_name }}"
         image: "{{ default_image_name }}:{{ image_version }}"
+        env_file: /home/codehubTeam5/mysql_devServer.env
         state: started
         expose:
           - 8080
