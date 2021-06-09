@@ -5,8 +5,8 @@
   
   vars:
     default_container_name: mysql_apllication
-    default_image_name: nikspanos/cicd-pipeline_dev
-    image_version: version1
+    default_image_name: "{{ image_name }}"
+    image_version: "{{ image_tag }}"
   
   tasks:
 
@@ -36,7 +36,7 @@
       docker_container:
         name: "{{ default_container_name }}"
         image: "{{ default_image_name }}:{{ image_version }}"
-        env_file: /home/codehubTeam5/mysql_devServer.env
+        env_file: "{{ env_credentials_path }}"
         state: started
         expose:
           - 8080
