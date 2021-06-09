@@ -37,9 +37,10 @@
         name: "{{ default_container_name }}"
         image: "{{ default_image_name }}:{{ image_version }}"
         state: started
+        expose:
+          - 8080
         ports:
-          - 8080:8080
-          - "40.68.35.115:8080:8080/tcp"
+          - "8080:8080"
     
     - name: Get info
       docker_container_info:
