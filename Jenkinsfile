@@ -95,15 +95,15 @@ pipeline {
                         sh "mvn clean compile"
                     }
                 }
-                stage("Execute applications's unit test"){
-                    steps{
-                        sh "mvn test"
-                    }
-                }
+                // stage("Execute applications's unit test"){
+                //     steps{
+                //         sh "mvn test"
+                //     }
+                // }
                 stage("Packaging the .jar file"){
                     steps{
                         input message: 'Do you want to create the .jar application for the production environment?\nBE CAREFULL, ONLY CHANGES APPROVED BY THE SYSTEM ADMIN SHOULD BE PACKAGED\n(Click "Proceed" to continue)'
-                        sh "mvn package"
+                        sh "clean package -DskipTests"
                         echo "Application .jar file is created for the production environment."
                     }
                 }
