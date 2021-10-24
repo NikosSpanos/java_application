@@ -5,32 +5,29 @@ pipeline {
         }
     }
     environment{
-        email_address_admin = "nspanos@athtech.gr"
-        email_address_developer = "sofiazagori@gmail.com"
-        image_version_prod = "version5"
-        image_version_dev = "version1"
+        email_address_admin = "spanos.nikolaos@outlook.com" //the email registered to jenkins for the user group Admin
     }
     tools{
         maven "maven-3.6.1"
     }
     stages{
-        stage("Changes pushed to features branch. Review the commit message and either accept or discard the changes."){
+        stage("Changes pushed to features branch.\nReview the commit message and the changes pushed/published by the application developers."){
             when{
                 branch "features"
             }
             steps {
-                input message: 'Application developer made changes. Do you accept the application changes? (Click "Proceed" to continue)'
+                echo 'Fetching changes from features branch'
             }
             post{
                 success{
-                    mail to: "${env.email_address_admin}, ${env.email_address_developer}",
+                    mail to: "${env.email_address_admin}",
                     subject: "SUCCESSFUL BUILD: ${env.BUILD_TAG}",
-                    body: "Your pipeline job on features branch was executed successfully. Link to job: ${env.BUILD_URL}\nDon't reply to this message."
+                    body: "Your pipeline job on features branch was executed successfully (Link to job: ${env.BUILD_URL}).\nNew application features uploaded.\nDon't reply to this message."
                 }
                 failure{
                     mail to: "${env.email_address_admin}",
                     subject: "FAILURE BUILD: ${env.BUILD_TAG}",
-                    body: "Your pipeline job on features branch failed. Link to job: ${env.BUILD_URL}\nDon't reply to this message."
+                    body: "Your pipeline job on features branch failed (Link to job: ${env.BUILD_URL}).\nDon't reply to this message."
                 }
             }
         }
@@ -44,15 +41,15 @@ pipeline {
                         sh "mvn clean compile"
                     }
                 }
-                stage("Execute applications's unit test"){
-                    steps{
-                        sh "mvn test"
-                    }
-                }
+                // stage("Execute applications's unit test"){
+                //     steps{
+                //         sh "mvn test"
+                //     }
+                // }
                 stage("Packaging the .jar file"){
                     steps{
                         input message: 'Do you want to create the .jar application for the development environment? (Click "Proceed" to continue)'
-                        sh "mvn package"
+                        sh "mvn clean package -DskipTests"
                         echo "Application .jar file is created for the development environment."
                     }
                 }
@@ -61,18 +58,25 @@ pipeline {
                         docker_user = credentials('Username')
                         docker_pass = credentials('Password')
                     }
+                    input{
+                        message "Please provide the version tag of the image artifact."
+                        ok "Continue!"
+                        parameters{
+                            string(name: 'image_version_dev', defaultValue:'', description: "Enter a text")
+                        }
+                    }
                     steps{
                         sh "sudo docker login -u $env.docker_user -p $env.docker_pass"
-                        sh "sudo docker build -t nikspanos/cicd-pipeline_dev:${env.image_version_dev} ."
-                        sh "sudo docker push nikspanos/cicd-pipeline_dev:${env.image_version_dev}"
+                        sh "sudo docker build -t nikspanos/cicd-pipeline_dev:${image_version_dev} ."
+                        sh "sudo docker push nikspanos/cicd-pipeline_dev:${image_version_dev}"
                     }
                 }
             }
             post{
                 success{
-                    mail to: "${env.email_address_admin}, ${env.email_address_developer}",
+                    mail to: "${env.email_address_admin}",
                     subject: "SUCCESSFUL BUILD: ${env.BUILD_TAG}",
-                    body: "Your pipeline job on development branch was executed successfully. Link to job: ${env.BUILD_URL}\nDon't reply to this message."
+                    body: "Your pipeline job on development branch was executed successfully. Link to job: ${env.BUILD_URL}\n Image version: ${image_version_dev} is built for deployment/testing of the application.\nDon't reply to this message."
                 }
                 failure{
                     mail to: "${env.email_address_admin}",
@@ -91,15 +95,15 @@ pipeline {
                         sh "mvn clean compile"
                     }
                 }
-                stage("Execute applications's unit test"){
-                    steps{
-                        sh "mvn test"
-                    }
-                }
+                // stage("Execute applications's unit test"){
+                //     steps{
+                //         sh "mvn test"
+                //     }
+                // }
                 stage("Packaging the .jar file"){
                     steps{
                         input message: 'Do you want to create the .jar application for the production environment?\nBE CAREFULL, ONLY CHANGES APPROVED BY THE SYSTEM ADMIN SHOULD BE PACKAGED\n(Click "Proceed" to continue)'
-                        sh "mvn package" //or mvn clean package? since we run 'mvn clean' on top we don't need 'mvn clean package', comment 2: pass the database_link and database_port as arguments in maven package
+                        sh "clean package -DskipTests"
                         echo "Application .jar file is created for the production environment."
                     }
                 }
@@ -108,23 +112,30 @@ pipeline {
                         docker_user = credentials('Username')
                         docker_pass = credentials('Password')
                     }
+                    input{
+                        message "Please provide the version tag of the image artifact."
+                        ok "Continue!"
+                        parameters{
+                            string(name: 'image_version_prod', defaultValue:'', description: "Enter a text")
+                        }
+                    }
                     steps{
                         sh "sudo docker login -u $env.docker_user -p $env.docker_pass"
-                        sh "sudo docker build -t nikspanos/cicd-pipeline_prod:${env.image_version_prod} ."
-                        sh "sudo docker push nikspanos/cicd-pipeline_prod:${env.image_version_prod}"
+                        sh "sudo docker build -t nikspanos/cicd-pipeline_prod:${image_version_prod} ."
+                        sh "sudo docker push nikspanos/cicd-pipeline_prod:${image_version_prod}"
                     }
                 }
             }
             post{
                 success{
-                    mail to: "${env.email_address_admin}, ${env.email_address_developer}",
+                    mail to: "${env.email_address_admin}",
                     subject: "SUCCESSFUL BUILD: ${env.BUILD_TAG}",
-                    body: "Your pipeline job on features branch was executed successfully. Link to job: ${env.BUILD_URL}\nDon't reply to this message."
+                    body: "Your pipeline job on production branch was executed successfully. Link to job: ${env.BUILD_URL}\n Image version: ${image_version_prod} is built for production deployment of the application."
                 }
                 failure{
                     mail to: "${env.email_address_admin}",
                     subject: "FAILURE BUILD: ${env.BUILD_TAG}",
-                    body: "Your pipeline job on development branch failed. Link to job: ${env.BUILD_URL}\nDon't reply to this message."
+                    body: "Your pipeline job on production branch failed. Link to job: ${env.BUILD_URL}\nDon't reply to this message."
                 }
             }
         }
