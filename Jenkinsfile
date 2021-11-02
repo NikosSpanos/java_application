@@ -49,7 +49,7 @@ pipeline {
                 stage("Packaging the .jar file"){
                     steps{
                         input message: 'Do you want to create the .jar application for the development environment? (Click "Proceed" to continue)'
-                        sh "mvn clean package -DskipTests"
+                        sh "mvn package -DskipTests -X"
                         echo "Application .jar file is created for the development environment."
                     }
                 }
@@ -103,7 +103,7 @@ pipeline {
                 stage("Packaging the .jar file"){
                     steps{
                         input message: 'Do you want to create the .jar application for the production environment?\nBE CAREFULL, ONLY CHANGES APPROVED BY THE SYSTEM ADMIN SHOULD BE PACKAGED\n(Click "Proceed" to continue)'
-                        sh "clean package -DskipTests"
+                        sh "mvn package -DskipTests -X"
                         echo "Application .jar file is created for the production environment."
                     }
                 }
