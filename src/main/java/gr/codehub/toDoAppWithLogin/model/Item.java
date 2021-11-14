@@ -24,4 +24,10 @@ public class Item {
 
     private String description;
     private Date date_created;
+    public static Object builder() {
+        return null;
+    }
+    public Short getDescription() {
+        return null;
+    }
 }

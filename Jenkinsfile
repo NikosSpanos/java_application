@@ -4,8 +4,13 @@ pipeline {
             label 'master'
         }
     }
+    parameters {
+        string(name: 'APPLICATION_DEFAULT_VERSION', defaultValue: "v_default", description: 'Application default value if user does not provide any new version number (i.e. v1, v2, v3, etc)')
+    }
     environment{
         email_address_admin = "spanos.nikolaos@outlook.com" //the email registered to jenkins for the user group Admin
+        APPLICATION_VERSION_TO_BUILD_DEFAULT = 'v_default'
+        APPLICATION_VERSION_TO_BUILD_REQUESTED = "${params.APPLICATION_DEFAULT_VERSION}"
     }
     tools{
         maven "maven-3.6.1"
@@ -36,7 +41,7 @@ pipeline {
                 branch "development"
             }
             stages{
-                stage("Compile source code to binary"){
+                stage("COMPILE source code to binary"){
                     steps{
                         sh "mvn clean compile"
                     }
@@ -46,29 +51,56 @@ pipeline {
                 //         sh "mvn test"
                 //     }
                 // }
-                stage("Packaging the .jar file"){
+                stage("PACKAGE java code to artifact"){
                     steps{
                         input message: 'Do you want to create the .jar application for the development environment? (Click "Proceed" to continue)'
                         sh "mvn clean package -DskipTests -X"
                         echo "Application .jar file is created for the development environment."
                     }
                 }
-                stage("Build application docker image in development environment"){
+                stage("CONFIGURE version of application docker image in development environment"){
+                    echo "Prompt a user to apply application's new version (default value: ${APPLICATION_VERSION_TO_BUILD_DEFAULT})"
+                    script {
+                        try {
+                            timeout(time:60, unit: 'SECONDS') {
+                                APPLICATION_VERSION_TO_BUILD_REQUESTED = input (
+                                    message: "Provide the version tag of the image artifact.",
+                                    parameters: [
+                                        [$class: 'TextParameterDefinition',
+                                         defaultValue: APPLICATION_VERSION_TO_BUILD_DEFAULT,
+                                         description: 'Artifact value for Docker Registry', name: 'Enter value (or leave default) and press [Proceed]:']
+                                    ]
+                                )
+                                echo ("User has entered the value: " + APPLICATION_VERSION_TO_BUILD_REQUESTED)
+                            }
+                        } catch(timeouterror) {
+                            def user = timeouterror.getCauses()[0].getUser()
+                            if('SYSTEM' == user.toString()) {
+                                echo ("Input timeout expired, default version value will be used: " + APPLICATION_VERSION_TO_BUILD_DEFAULT)
+                                APPLICATION_VERSION_TO_BUILD_REQUESTED = APPLICATION_VERSION_TO_BUILD_DEFAULT
+                            } else {
+                                echo "Input aborted by: [${user}]"
+                                error("Pipeline aborted by: [${user}]")
+                            }
+                        }
+                    }
+                    // input{
+                    //     message "Please provide the version tag of the image artifact."
+                    //     ok "Continue!"
+                    //     parameters{
+                    //         string(name: 'image_version_dev', defaultValue:'', description: "Enter a text")
+                    //     }
+                    // }
+                }
+                stage("BUILD application to docker image") {
                     environment{
                         docker_user = credentials('Username')
                         docker_pass = credentials('Password')
                     }
-                    input{
-                        message "Please provide the version tag of the image artifact."
-                        ok "Continue!"
-                        parameters{
-                            string(name: 'image_version_dev', defaultValue:'', description: "Enter a text")
-                        }
-                    }
                     steps{
                         sh "sudo docker login -u $env.docker_user -p $env.docker_pass"
-                        sh "sudo docker build -t nikspanos/cicd-pipeline_dev:${image_version_dev} ."
-                        sh "sudo docker push nikspanos/cicd-pipeline_dev:${image_version_dev}"
+                        sh "sudo docker build -t nikspanos/cicd-pipeline_dev:${APPLICATION_VERSION_TO_BUILD_REQUESTED}."
+                        sh "sudo docker push nikspanos/cicd-pipeline_dev:${APPLICATION_VERSION_TO_BUILD_REQUESTED}"
                     }
                 }
             }
@@ -113,7 +145,7 @@ pipeline {
                         docker_pass = credentials('Password')
                     }
                     input{
-                        message "Please provide the version tag of the image artifact."
+                        message "Please provide the version tag of the image artifact." //add default value if user does not inputs no values after 1minute
                         ok "Continue!"
                         parameters{
                             string(name: 'image_version_prod', defaultValue:'', description: "Enter a text")
