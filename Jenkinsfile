@@ -59,28 +59,30 @@ pipeline {
                     }
                 }
                 stage("CONFIGURE version of application docker image in development environment"){
-                    echo "Prompt a user to apply application's new version (default value: ${APPLICATION_VERSION_TO_BUILD_DEFAULT})"
-                    script {
-                        try {
-                            timeout(time:60, unit: 'SECONDS') {
-                                APPLICATION_VERSION_TO_BUILD_REQUESTED = input (
-                                    message: "Provide the version tag of the image artifact.",
-                                    parameters: [
-                                        [$class: 'TextParameterDefinition',
-                                         defaultValue: APPLICATION_VERSION_TO_BUILD_DEFAULT,
-                                         description: 'Artifact value for Docker Registry', name: 'Enter value (or leave default) and press [Proceed]:']
-                                    ]
-                                )
-                                echo ("User has entered the value: " + APPLICATION_VERSION_TO_BUILD_REQUESTED)
-                            }
-                        } catch(timeouterror) {
-                            def user = timeouterror.getCauses()[0].getUser()
-                            if('SYSTEM' == user.toString()) {
-                                echo ("Input timeout expired, default version value will be used: " + APPLICATION_VERSION_TO_BUILD_DEFAULT)
-                                APPLICATION_VERSION_TO_BUILD_REQUESTED = APPLICATION_VERSION_TO_BUILD_DEFAULT
-                            } else {
-                                echo "Input aborted by: [${user}]"
-                                error("Pipeline aborted by: [${user}]")
+                    steps {
+                        echo "Prompt a user to apply application's new version (default value: ${APPLICATION_VERSION_TO_BUILD_DEFAULT})"
+                        script {
+                            try {
+                                timeout(time:60, unit: 'SECONDS') {
+                                    APPLICATION_VERSION_TO_BUILD_REQUESTED = input (
+                                        message: "Provide the version tag of the image artifact.",
+                                        parameters: [
+                                            [$class: 'TextParameterDefinition',
+                                            defaultValue: APPLICATION_VERSION_TO_BUILD_DEFAULT,
+                                            description: 'Artifact value for Docker Registry', name: 'Enter value (or leave default) and press [Proceed]:']
+                                        ]
+                                    )
+                                    echo ("User has entered the value: " + APPLICATION_VERSION_TO_BUILD_REQUESTED)
+                                }
+                            } catch(timeouterror) {
+                                def user = timeouterror.getCauses()[0].getUser()
+                                if('SYSTEM' == user.toString()) {
+                                    echo ("Input timeout expired, default version value will be used: " + APPLICATION_VERSION_TO_BUILD_DEFAULT)
+                                    APPLICATION_VERSION_TO_BUILD_REQUESTED = APPLICATION_VERSION_TO_BUILD_DEFAULT
+                                } else {
+                                    echo "Input aborted by: [${user}]"
+                                    error("Pipeline aborted by: [${user}]")
+                                }
                             }
                         }
                     }
@@ -94,8 +96,8 @@ pipeline {
                 }
                 stage("BUILD application to docker image") {
                     environment{
-                        docker_user = credentials('Username')
-                        docker_pass = credentials('Password')
+                        docker_user = credentials('DockerHub_Username')
+                        docker_pass = credentials('DockerHub_Password')
                     }
                     steps{
                         sh "sudo docker login -u $env.docker_user -p $env.docker_pass"
