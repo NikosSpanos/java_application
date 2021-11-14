@@ -53,7 +53,6 @@ pipeline {
                 // }
                 stage("PACKAGE java code to artifact"){
                     steps{
-                        input message: 'Do you want to create the .jar application for the development environment? (Click "Proceed" to continue)'
                         sh "mvn clean package -DskipTests -X"
                         echo "Application .jar file is created for the development environment."
                     }
