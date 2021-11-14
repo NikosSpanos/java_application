@@ -1,4 +1,8 @@
 -------------------------------------------------------------------------------
 Test set: gr.codehub.toDoAppWithLogin.service.ItemServiceTest
 -------------------------------------------------------------------------------
+<<<<<<< HEAD
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.821 s - in gr.codehub.toDoAppWithLogin.service.ItemServiceTest
+=======
 Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 9.872 s - in gr.codehub.toDoAppWithLogin.service.ItemServiceTest
+>>>>>>> 02c3df10470847e31de8c2d3d9c844caa6847bb3
