@@ -1,0 +1,24 @@
+######################
+# Project Specific
+######################
+/target/classes/static/**
+logs/*
+
+######################
+# Eclipse
+######################
+.project
+.factorypath
+.settings/
+.classpath
+
+######################
+# Intellij
+######################
+.idea/
+*.iml
+
+######################
+# Maven
+######################
+target/*
